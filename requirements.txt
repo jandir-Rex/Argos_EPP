@@ -1,0 +1,9 @@
+numpy
+opencv-python
+ultralytics
+openvino
+zeroconf
+requests
+fastapi
+uvicorn
+cryptography

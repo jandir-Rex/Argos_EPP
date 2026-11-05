@@ -1,0 +1,2 @@
+Aqui se guardan las fotos de evidencia (una carpeta por dia). Las crea el motor solo.
+El archivo eventos.db (la base de alertas) esta en la carpeta principal.

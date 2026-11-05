@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1A2B">
+<title>ARGOS EPP — Panel</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="icon" href="/static/icon-192.png">
+<link rel="apple-touch-icon" href="/static/icon-192.png">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs></defs></svg>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side" id="side">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+        <path d="M16 3 28 10v12L16 29 4 22V10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="16" cy="16" r="5" fill="#FF6B1A"/><circle cx="16" cy="16" r="2" fill="#0E1A2B"/>
+      </svg>
+      <span class="brand-t">ARGOS <b>EPP</b></span>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button data-view="vivo" class="active"><svg class="i"><use href="/static/icons.svg#scan-line"/></svg><span>En vivo</span></button>
+      <button data-view="transmisiones"><svg class="i"><use href="/static/icons.svg#layout-grid"/></svg><span>Transmisiones</span><em class="badge" id="nav-count">0</em></button>
+      <button data-view="dispositivos"><svg class="i"><use href="/static/icons.svg#radar"/></svg><span>Dispositivos</span></button>
+      <button data-view="reportes"><svg class="i"><use href="/static/icons.svg#file-chart-column"/></svg><span>Reportes</span></button>
+      <button data-view="ajustes"><svg class="i"><use href="/static/icons.svg#settings"/></svg><span>Ajustes</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="motor" id="motor-chip"><i class="dot"></i><span>Motor…</span></div>
+      <div class="mono side-url" id="side-url">—</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1 id="view-title">En vivo</h1>
+      <div class="top-r">
+        <button class="btn ghost small" id="btn-sound" title="Sonido de alerta en el panel"><svg class="i"><use href="/static/icons.svg#volume-x"/></svg><span>Sonido</span></button>
+        <label class="master" title="Apaga el reconocimiento en todos los dispositivos">
+          <span class="master-t"><svg class="i"><use href="/static/icons.svg#shield-check"/></svg><span>Reconocimiento de EPP</span></span>
+          <input type="checkbox" class="sw" id="sw-global" checked>
+        </label>
+      </div>
+    </header>
+
+    <div class="banner" id="legacy-banner" hidden><svg class="i"><use href="/static/icons.svg#triangle-alert"/></svg><span><b>Tu motor_epp.py es una versión anterior.</b> Solo atiende una cámara a la vez y no tiene el switch de reconocimiento. Reemplázalo por el motor v6 (carpeta motor-ia) y reinícialo.</span></div>
+
+    <main>
+
+      <!-- ============ EN VIVO ============ -->
+      <section id="view-vivo" class="view active">
+        <div class="live-grid">
+          <div class="monitor">
+            <div class="chips" id="live-chips"></div>
+            <div class="video-wrap viewfinder vf-b">
+              <img id="video" alt="Video en vivo">
+              <div class="video-badge" id="video-badge"><i class="dot"></i><span id="video-cam">—</span></div>
+              <div class="video-overlay" id="video-overlay" hidden>
+                <svg class="i big-i"><use href="/static/icons.svg#video-off"/></svg>
+                <div class="big" id="overlay-title">Sin señal</div>
+                <div id="overlay-msg" class="soft"></div>
+              </div>
+            </div>
+            <div class="status-bar">
+              <div class="status-chip neutral" id="status-chip">Esperando…</div>
+              <label class="mini-sw"><span>Reconocimiento</span><input type="checkbox" class="sw" id="sw-live-det"></label>
+            </div>
+          </div>
+
+          <div class="side-col">
+            <div class="kpis">
+              <div class="kpi"><div class="kpi-n" id="kpi-hoy">0</div><div class="kpi-l">Alertas hoy</div></div>
+              <div class="kpi"><div class="kpi-n" id="kpi-casco">0</div><div class="kpi-l">Sin casco</div></div>
+              <div class="kpi"><div class="kpi-n" id="kpi-chaleco">0</div><div class="kpi-l">Sin chaleco</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h">Últimas alertas <a href="#" class="link" data-go="reportes">ver reportes</a></div>
+              <ul class="alerts" id="alerts"><li class="muted empty">Aún no hay alertas.</li></ul>
+            </div>
+            <div class="card">
+              <div class="card-h">Alertas de los últimos 7 días</div>
+              <div class="bars" id="bars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TRANSMISIONES ============ -->
+      <section id="view-transmisiones" class="view">
+        <div class="view-h">
+          <div><h2>Todo lo que está transmitiendo</h2>
+            <p class="muted" id="tx-sub">Cámaras encendidas, agrupadas por zona.</p></div>
+          <div class="chips light" id="zone-chips"></div>
+        </div>
+        <div class="wall" id="wall"></div>
+        <div class="empty-big" id="wall-empty" hidden>
+          <svg class="i big-i"><use href="/static/icons.svg#video-off"/></svg>
+          <p>No hay cámaras transmitiendo.</p>
+          <button class="btn primary" data-go="dispositivos">Ir a dispositivos</button>
+        </div>
+      </section>
+
+      <!-- ============ DISPOSITIVOS ============ -->
+      <section id="view-dispositivos" class="view">
+        <div class="dev-top">
+          <div class="radar-card">
+            <div class="radar" id="radar">
+              <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+              <div class="cross h"></div><div class="cross v"></div>
+              <div class="sweep" id="sweep"></div>
+              <div class="hub"><svg class="i"><use href="/static/icons.svg#server"/></svg></div>
+              <div class="blips" id="blips"></div>
+            </div>
+            <div class="radar-foot">
+              <div class="radar-info">
+                <div class="radar-t" id="radar-title">Radar de red</div>
+                <div class="soft mono" id="radar-sub">Sin buscar</div>
+                <div class="bar" id="scan-bar" hidden><i></i></div>
+              </div>
+              <div class="row">
+                <button class="btn accent" id="btn-scan"><svg class="i"><use href="/static/icons.svg#search"/></svg><span>Buscar dispositivos</span></button>
+                <button class="btn dark" id="btn-link"><svg class="i"><use href="/static/icons.svg#qr-code"/></svg><span>Vincular celular</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="found-card">
+            <div class="card-h">Agregar un dispositivo</div>
+            <div class="quick">
+              <button class="qk" data-q="usb"><span class="dev-ico"><svg class="i"><use href="/static/icons.svg#video"/></svg></span><b>Webcam de la laptop</b><small>USB o integrada</small></button>
+              <button class="qk" data-q="esp32cam"><span class="dev-ico"><svg class="i"><use href="/static/icons.svg#camera"/></svg></span><b>ESP32-S3-CAM</b><small>Por nombre o IP</small></button>
+              <button class="qk" data-q="celularqr"><span class="dev-ico"><svg class="i"><use href="/static/icons.svg#smartphone"/></svg></span><b>Celular por QR</b><small>Desde el navegador</small></button>
+              <button class="qk" data-q="rtsp"><span class="dev-ico"><svg class="i"><use href="/static/icons.svg#cctv"/></svg></span><b>Cámara IP</b><small>RTSP / IP Webcam</small></button>
+            </div>
+            <div class="card-h found-h">Encontrados en la red <span class="muted" id="found-n"></span></div>
+            <ul class="found" id="found"><li class="muted empty">Pulsa «Buscar dispositivos» para escanear la red local.</li></ul>
+          </div>
+        </div>
+
+        <div class="view-h tight">
+          <div><h2>Mis dispositivos</h2>
+            <p class="muted">Cada uno tiene su zona. Apaga la transmisión o solo el reconocimiento de EPP.</p></div>
+        </div>
+        <div id="devices"></div>
+      </section>
+
+      <!-- ============ REPORTES ============ -->
+      <section id="view-reportes" class="view">
+        <div class="card filters no-print">
+          <label>Desde <input type="date" id="f-desde"></label>
+          <label>Hasta <input type="date" id="f-hasta"></label>
+          <label>Zona <select id="f-zona"><option value="">Todas</option></select></label>
+          <label>Dispositivo <select id="f-camara"><option value="">Todos</option></select></label>
+          <label>Falta <select id="f-epp"><option value="">Cualquiera</option>
+            <option value="casco">Casco</option><option value="chaleco">Chaleco</option>
+            <option value="lentes">Lentes</option><option value="guantes">Guantes</option><option value="botas">Botas</option></select></label>
+          <label>Estado <select id="f-estado"><option value="">Todos</option>
+            <option value="alertado">Alertado</option><option value="revisado">Revisado</option>
+            <option value="falso_positivo">Falso positivo</option></select></label>
+          <button class="btn primary small" id="btn-filter"><svg class="i"><use href="/static/icons.svg#filter"/></svg><span>Filtrar</span></button>
+        </div>
+
+        <div id="print-head" class="print-only"></div>
+        <h2 class="sec-t">Por dispositivo</h2>
+        <div class="rep-cards" id="rep-cards"></div>
+
+        <div class="view-h tight no-print">
+          <h2 class="sec-t" id="ev-title">Eventos</h2>
+          <div class="row">
+            <button class="btn ghost" id="btn-csv"><svg class="i"><use href="/static/icons.svg#download"/></svg><span>CSV</span></button>
+            <button class="btn primary" id="btn-print"><svg class="i"><use href="/static/icons.svg#printer"/></svg><span>Imprimir / PDF</span></button>
+          </div>
+        </div>
+        <div class="card table-card">
+          <table class="tbl" id="tbl">
+            <thead><tr><th>Evidencia</th><th>Fecha y hora</th><th>Zona · Dispositivo</th><th>Falta</th><th>Conf.</th><th class="no-print">Estado</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <div class="muted empty" id="tbl-empty" hidden>No hay eventos con esos filtros.</div>
+        </div>
+        <div class="row center no-print"><span class="muted" id="tbl-count"></span>
+          <button class="btn ghost small" id="btn-more" hidden>Cargar más</button></div>
+      </section>
+
+      <!-- ============ AJUSTES ============ -->
+      <section id="view-ajustes" class="view">
+        <div class="card form-card">
+          <h3>EPP obligatorios</h3>
+          <div class="checks" id="req-checks"></div>
+          <p class="muted small-t">Con el modelo actual, <b>casco</b> y <b>chaleco</b> son los probados. Lentes, guantes y botas aún no están validados y pueden dar falsos positivos.</p>
+          <h3>Actuador (voz y luces)</h3>
+          <label class="field">Host del actuador
+            <input type="text" id="s-actuador" placeholder="epp-actuador.local  (vacío si aún no lo tienes)">
+          </label>
+          <div class="row"><button class="btn primary" id="btn-save-set">Guardar ajustes</button><span class="muted" id="set-msg"></span></div>
+        </div>
+        <div class="card form-card">
+          <h3>Abrir el panel desde el celular</h3>
+          <p>Con el celular en la misma red, abre: <code id="lan-url">…</code></p>
+          <h3>Cómo se inicia todo</h3>
+          <pre>cd D:\ARGOS-EPP\motor-ia
+python motor_epp.py --no-view --ppe-imgsz 416
+
+cd D:\ARGOS-EPP\panel
+python servidor.py</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============ DIALOGOS ============ -->
+<dialog id="dev-dialog">
+  <form method="dialog" id="dev-form">
+    <h2 id="dev-title">Agregar dispositivo</h2>
+    <input type="hidden" id="d-id">
+    <label class="field">Zona <input type="text" id="d-zona" maxlength="40" list="zonas" placeholder="Ej. Pabellón 2"></label>
+    <label class="field">Nombre del dispositivo <input type="text" id="d-nombre" required maxlength="40" placeholder="Ej. Cámara de la entrada"></label>
+    <label class="field">Tipo
+      <select id="d-tipo">
+        <option value="esp32cam">ESP32-S3-CAM</option>
+        <option value="celular">Celular (IP Webcam / DroidCam)</option>
+        <option value="rtsp">Cámara IP (RTSP)</option>
+        <option value="usb">Webcam USB / de la laptop</option>
+        <option value="url">Enlace de video (MJPEG)</option>
+      </select>
+    </label>
+    <label class="field">Dirección <input type="text" id="d-direccion" required>
+      <span class="hint" id="d-hint"></span></label>
+    <div class="row end">
+      <button type="button" class="btn ghost" id="d-cancel">Cancelar</button>
+      <button type="submit" class="btn primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+<datalist id="zonas"></datalist>
+
+<dialog id="qr-dialog">
+  <div class="qr-box">
+    <div class="qr-head"><h2>Vincular celular</h2>
+      <button class="icon-btn" id="qr-close" aria-label="Cerrar"><svg class="i"><use href="/static/icons.svg#x"/></svg></button></div>
+    <div id="qr-step1">
+      <p class="muted">El celular debe estar en la misma red WiFi que esta laptop.</p>
+      <label class="field">Zona <input type="text" id="q-zona" maxlength="40" list="zonas" placeholder="Ej. Pabellón 2"></label>
+      <label class="field">Nombre del dispositivo <input type="text" id="q-nombre" maxlength="40" placeholder="Ej. Celular de Jandir"></label>
+      <button class="btn primary wide" id="qr-go"><svg class="i"><use href="/static/icons.svg#qr-code"/></svg><span>Generar QR</span></button>
+    </div>
+    <div id="qr-step2" hidden>
+      <div class="qr-img" id="qr-img"></div>
+      <div class="qr-state" id="qr-state"><svg class="i spin"><use href="/static/icons.svg#loader-circle"/></svg><span>Esperando que el celular escanee…</span></div>
+      <p class="mono qr-url" id="qr-url"></p>
+      <p class="muted small-t" id="qr-note"></p>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="img-dialog"><img id="img-big" alt="Evidencia"></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script src="/static/vendor/qrcode.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

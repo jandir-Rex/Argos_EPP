@@ -1,0 +1,3 @@
+Archivo y JetBrains Mono: SIL Open Font License 1.1 (via Fontsource)
+Iconos Lucide: licencia ISC (lucide.dev)
+qrcode-generator (Kazuhiko Arase): licencia MIT

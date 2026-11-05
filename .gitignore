@@ -1,0 +1,9 @@
+.venv/
+.pip-cache/
+__pycache__/
+*.pyc
+live/
+config/
+evidencias/*
+!evidencias/LEEME.txt
+eventos.db*
